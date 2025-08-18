@@ -15,17 +15,21 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+
+    console.log("POST /api/users hit"); // <
   try {
-    const { name, email, age } = req.body;
+    const { name, email, username,phone,password} = req.body;
     const user = new User({
       name,
       email,
-      age,
+      username,
+      phone,
+      password
     });
     await user.save();
     res.status(201).json(user);
   } catch (error) {
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ message: error.message });
   }
 });
 
