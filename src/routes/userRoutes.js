@@ -40,7 +40,6 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  console.log("POST /api/users hit"); // <
   try {
     const { name, email, username, phone, password } = req.body;
     const user = new User({

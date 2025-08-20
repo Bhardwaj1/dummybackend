@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       minlength: [3, "Username must be at least 3 characters"],
-      maxlength: [30, "Username cannot exceed 30 charcters"],
+      maxlength: [30, "Username cannot exceed 30 characters"],
     },
     phone: {
       type: String,
@@ -38,17 +38,16 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
-      minlength: [8, "Password must be atleast 8 characters"],
-      select: false,
+      minlength: [8, "Password must be at least 8 characters"],
+      select: false, // hidden by default
     },
-
     role: {
       type: String,
       enum: ["user", "admin", "manager"],
       default: "user",
     },
     isActive: { type: Boolean, default: true },
+    googleId: { type: String, unique: true, sparse: true }, // for Google login
   },
   {
     timestamps: true,
@@ -56,21 +55,20 @@ const userSchema = new mongoose.Schema(
 );
 
 // Indexing for faster lookup
-// userSchema.index({email:1});
-// userSchema.index({username:1});
+// userSchema.index({ email: 1 });
+// userSchema.index({ username: 1 });
 
-// Password hassing before save
-userSchema.pre("save",async function(next){
-  if (!this.isModified("password")) return next();
-  this.password= await bcrypt.hash(this.password,12);
+// Password hashing before save
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password") || !this.password) return next();
+  this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-// Instance method to check password 
-userSchema.methods.comparePassword=async function (candidatePassowrd){
-  return await bcrypt.compare(candidatePassowrd,this.passowrd);
-}
-
+// Instance method to check password
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;
